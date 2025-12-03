@@ -17,11 +17,11 @@ Best practices and examples for connecting LangChain to the RDS instance.
 How to verify connectivity, run sample queries, perform similarity searches, and ensure performance expectations
 
 ## Direcotry Structure
--pgvector-setup/
--├── overview.md
--├── requirements.md
--├── rds-postgresql-deployment.md
--├── enable-pgvector-extension.md
--├── schema-design.md
--└── connection-test.md
+- pgvector-setup/
+- ├── overview.md
+- ├── requirements.md
+- ├── rds-postgresql-deployment.md
+- ├── enable-pgvector-extension.md
+- ├── schema-design.md
+- └── connection-test.md
 
