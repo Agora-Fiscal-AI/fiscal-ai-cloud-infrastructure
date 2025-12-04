@@ -37,34 +37,36 @@ XML and JSON can be 300KB–3MB per law. Storing that in PostgreSQL would slow d
 
 ---
 
-## 2. Recommended Schema
+## 2.  Schema
 
 ### **Table: document_chunks**
 
 This is the ONLY required table for the MVP.
 
 ```sql
-CREATE TABLE document_chunks (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-    -- Reference to original document in S3
-    s3_uri TEXT NOT NULL,
+CREATE TABLE laws (
+    id UUID PRIMARY KEY,
+    title TEXT NOT NULL,
+    jurisdiction TEXT NOT NULL,
+    category TEXT NOT NULL,
+    version TEXT NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    effective_date DATE,
+    expiration_date DATE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    json_s3_url TEXT,
+    source_pdf_s3_url TEXT
+);
 
-    -- Identifiers to support filtering, grouping, and traceability
-    law_name TEXT NOT NULL,
-    law_year INT,
-    title TEXT,
-    chapter TEXT,
-    section TEXT,
 
-    -- Chunk-level text content (small excerpts only)
-    chunk_text TEXT NOT NULL,
-
-    -- Vector embedding
-    embedding vector(1000),
-
-    -- Metadata stored as flexible JSON (optional)
+CREATE TABLE law_chunks (
+    id UUID PRIMARY KEY,
+    law_id UUID REFERENCES laws(id) ON DELETE CASCADE,
+    chunk_index INTEGER NOT NULL,
+    text TEXT NOT NULL,
+    embedding VECTOR(1536),
     metadata JSONB,
-
+    json_s3_url TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
