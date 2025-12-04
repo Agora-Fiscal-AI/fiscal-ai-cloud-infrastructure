@@ -41,7 +41,7 @@ Later it can scale to the following structure:
 - ├── state/
 - │    ├── Queretaro/
 - │    │    ├── 2024/
-- |    |    |    ├── Huilimpan (Municipe)/
+- |    |    |    ├── Huimilpan (Municipe)/
 - │    │    │    |   ├── ley-ingresos-qro.pdf
 
 1. processed/ — Cleaned & Parsed Documents
@@ -95,4 +95,44 @@ Files here may be deleted automatically via lifecycle rules.
 - tmp/
 - ├── 00123/
 - │    └── chunk-temp-2025-01-10.json
+- |    └─  manifests.json
+### Example of manifests.json
+``` json
+{
+  "law_id": 123,
+  "canonical_file": "law.json",
+  "created_at": "2025-01-10T21:00:00Z",
+  "normalization_pipeline": "norm_v1",
+  "hash_sha256": "AB23984984F0A..."
+}
 
+```
+5. Extra Notes
+- Every time when a document is uploaded to S3, it must be uploaded with a Tag. 
+- Example:
+- Phase 1: A new raw doc uploaded:
+```json
+ {
+  "law_id": "123",
+  "stage": "raw",
+  "source": "dof",
+  "jurisdiction": "federal"
+}
+```
+- Phase 2: Pipeline converts RAW -> Processed:
+```json
+{
+  "law_id": "123",
+  "stage": "processed",
+  "pipeline": "normalize_v1"
+}
+```
+- Phase 3: Generation to canonic JSON:
+```json
+{
+  "law_id": "123",
+  "stage": "normalized",
+  "version": "2025.01",
+  "jurisdiction": "federal"
+}
+```
