@@ -31,19 +31,20 @@ Later it can scale to the following structure:
    - PDF files
    - DOCX files
    - XLSX (Future posible implementation)
+  
     ### Example structure:
 - raw/
--     ├── federal/
--     │    ├── 2025/
--     │    │    ├── ley-impuestos.pdf
--     │    │    
--     ├── state/
--     │    ├── Queretaro/
--     │    │    ├── 2024/
--     |    |    |    ├── Huilimpan (Municipe)/
--     │    │    │    |   ├── ley-ingresos-qro.pdf
+- ├── federal/
+- │    ├── 2025/
+- │    │    ├── ley-impuestos.pdf
+- │    │    
+- ├── state/
+- │    ├── Queretaro/
+- │    │    ├── 2024/
+- |    |    |    ├── Huilimpan (Municipe)/
+- │    │    │    |   ├── ley-ingresos-qro.pdf
 
-2. processed/ — Cleaned & Parsed Documents
+1. processed/ — Cleaned & Parsed Documents
 Documents that have been transformed from raw format into partially structured data.
 ## Examples:
 - XML parsed into preliminary JSON
@@ -55,7 +56,7 @@ Documents that have been transformed from raw format into partially structured d
 -  │    ├── segments.xml
 -  │    └── metadata.json
   
-3. normalized/ — Canonical JSON Representation (Final Form)
+1. normalized/ — Canonical JSON Representation (Final Form)
 This is the **most important folder** for the vector database pipeline
 - Every law is stored in a canonical, standarized JSON fromat:
 - normalized/<law_id>/<canonical-law>.json
