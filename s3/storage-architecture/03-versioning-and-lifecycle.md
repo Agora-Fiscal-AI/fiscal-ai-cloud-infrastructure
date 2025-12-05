@@ -1,4 +1,6 @@
-# Purpose
+# 03-versioning-and-lifecycle
+
+## Purpose
 
 This document defines the versining strategy, retention rules, and lifecycle configuration for the Amazon S3 bucket used in Agora Fiscal AI.
 ## The goal is to ensure:
@@ -58,7 +60,7 @@ Defined four lifecycle policies:
 - Temporary files should never accumulate.
 
 3. Metadata Tagging Standarts
-- To ensure traceability and integration with external services, all files uplodes to S3 should include consistent object tags.
+To ensure traceability and integration with external services, all files uplodes to S3 should include consistent object tags.
 | Tag            | Value                              | Purpose                            |
 |----------------|------------------------------------|------------------------------------|
 | `law_id`       | `<integer>`                        | Links S3 files to RDS `laws` table |
