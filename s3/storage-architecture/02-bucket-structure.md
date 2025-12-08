@@ -19,7 +19,7 @@ Later it can scale to the following structure:
   
 ## Top-Level Folder 
 Structure
-´´´json
+```psql
 
 fiscal-ai-docs/
 │
