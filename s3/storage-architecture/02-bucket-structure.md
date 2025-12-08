@@ -17,8 +17,10 @@ Later it can scale to the following structure:
 - agora-fiscal-ai-dev
 - agora-fiscal-ai-stage
   
-## Top-Level Folder Structure
-´´´psql
+## Top-Level Folder 
+Structure
+´´´json
+
 fiscal-ai-docs/
 │
 ├── raw/
