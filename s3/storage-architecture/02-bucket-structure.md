@@ -18,121 +18,178 @@ Later it can scale to the following structure:
 - agora-fiscal-ai-stage
   
 ## Top-Level Folder Structure
-- agora-fiscal-ai-docs/
--  ├── raw/
--  ├── processed/
--  ├── normalized/
--  └── tmp/
+´´´psql
+fiscal-ai-docs/
+│
+├── raw/
+│   ├── federal/
+│   │     └── <YEAR>/<original_files.pdf, docx>
+│   ├── state/
+│   └── municipal/
+│
+├── normalized/
+│   └── <LAW_ID>/
+│         ├── law.json                  # canonical JSON
+│         ├── manifest.json             # metadata & stats
+│         ├── sections/                 # optional future expansion
+│         └── version-info.json         # historical info
+│
+├── chunks/
+│   └── <LAW_ID>/
+│         ├── chunks.jsonl              # all chunks in JSONL
+│         ├── chunk-manifest.json       # metadata describing chunk count, errors
+│         └── checkpoints/              # for resume operations
+│               └── batch-<N>.json
+│
+├── embeddings/
+│   └── <LAW_ID>/
+│         ├── vectors.jsonl             # full embedding dump for EC2 → RDS
+│         ├── embeddings-manifest.json  # metadata for lambda(2)
+│         └── <LAW_ID>.ready            # event-trigger flag
+│
+├── logs/
+│   └── <LAW_ID>/
+│         ├── correlation.json          # flow tracking
+│         ├── worker-log-<timestamp>.txt
+│         └── errors/                   # any pipeline warnings
+│
+└── retry/
+    └── <LAW_ID>/
+          ├── recovery-note.json
+          └── input-message.json        # original SQS message snapshot
+
+
+´´´
   
 ## Folder Definitions
-1. raw/ - Original Source Documents
-   Contains unmodified documents fetched from official sources such as (La Sombra de Arteaga or DOF Diario Oficial de la Federacion), state reposiories or local authorities
-   ### Contents may include:
-   - PDF files
-   - DOCX files
-   - XLSX (Future posible implementation)
-  
-    ### Example structure:
-- raw/
-- ├── federal/
-- │    ├── 2025/
-- │    │    ├── ley-impuestos.pdf
-- │    │    
-- ├── state/
-- │    ├── Queretaro/
-- │    │    ├── 2024/
-- |    |    |    ├── Huimilpan (Municipe)/
-- │    │    │    |   ├── ley-ingresos-qro.pdf
+### 2. /raw/ — Entry Point for All Documents
 
-1. processed/ — Cleaned & Parsed Documents
-Documents that have been transformed from raw format into partially structured data.
-## Examples:
-- XML parsed into preliminary JSON
-- Extracted text segments
-- Early metadata extraction
-## Example:
-- processed/
--  ├── 00123/                     # law_id from DB
--  │    ├── segments.xml
--  │    └── metadata.json
-  
-1. normalized/ — Canonical JSON Representation (Final Form)
-This is the **most important folder** for the vector database pipeline
-- Every law is stored in a canonical, standarized JSON fromat:
-- normalized/<law_id>/<canonical-law>.json
-  
-This JSON is what:
-- The chunking pipeline reads
-- Metadata is extracted from
-- pgvector embeddings originate from
-
-### Example:
-- normalized/
-- ├── 00123/
-- │    └── ley-del-iva.json
-- ├── 00456/
-- │    └── codigo-fiscal-federacion.json
-
-### Each JSON file typically contains:
-- law title
-- article/chapter structure
-- paragraphs
-- table of contents
-- references
-- metadata
-- version information
-- date of validity
-- jurisdiction level
-
-4. tmp/ — Temporary Working Files
-
-## Used for:
-- intermediate results
-- ephemeral processing steps
-- staging areas for lambda/processing jobs
-Files here may be deleted automatically via lifecycle rules.
-### Example:
-- tmp/
-- ├── 00123/
-- │    └── chunk-temp-2025-01-10.json
-- |    └─  manifests.json
-### Example of manifests.json
-``` json
-{
-  "law_id": 123,
-  "canonical_file": "law.json",
-  "created_at": "2025-01-10T21:00:00Z",
-  "normalization_pipeline": "norm_v1",
-  "hash_sha256": "AB23984984F0A..."
-}
-
+This is where users upload files. Events from this directory trigger Lambda (1).
+```psql
+raw/
+└── <jurisdiction>/<YEAR>/<filename>
 ```
-5. Extra Notes
-- Every time when a document is uploaded to S3, it must be uploaded with a Tag. 
-- Example:
-- Phase 1: A new raw doc uploaded:
+Example:
+
+- raw/federal/2025/ley-iva-2025.pdf
+Metadata applied as S3 object tags:
+
 ```json
- {
-  "law_id": "123",
+{
+  "law_id": "IVA_2025",
   "stage": "raw",
   "source": "dof",
   "jurisdiction": "federal"
 }
 ```
-- Phase 2: Pipeline converts RAW -> Processed:
+
+
+## 3. /normalized/<LAW_ID>/ — Canonical JSON Output
+
+EC2 Worker writes normalized structured documents here.
+```psql
+normalized/
+└── <LAW_ID>/
+      ├── law.json
+      ├── manifest.json
+      ├── version-info.json (future implementation)
+      └── sections/ (future implementation)
+
+```
+Example manifest.json
 ```json
 {
-  "law_id": "123",
-  "stage": "processed",
-  "pipeline": "normalize_v1"
+  "law_id": "IVA_2025",
+  "normalized_at": "2025-02-12T19:20Z",
+  "sha256": "ae039f...",
+  "chunks_expected": 542
 }
 ```
-- Phase 3: Generation to canonic JSON:
+
+## 4. /chunks/<LAW_ID>/ — All Chunking Artifacts
+
+The EC2 Worker creates a complete set of semantic units.
+```psql
+chunks/
+└── <LAW_ID>/
+      ├── chunks.jsonl
+      ├── chunk-manifest.json
+      └── checkpoints/
+           ├── batch-01.json
+           ├── batch-02.json
+           └── ...
+```
+Example chunks.jsonl
+```jsonl
+{"chunk_id":"IVA_2025_001","text":"...","page":2}
+{"chunk_id":"IVA_2025_002","text":"...","page":3}
+```
+Example chunk-manifest.json
 ```json
 {
-  "law_id": "123",
-  "stage": "normalized",
-  "version": "2025.01",
-  "jurisdiction": "federal"
+  "law_id": "IVA_2025",
+  "total_chunks": 542,
+  "avg_length_tokens": 850
 }
+```
+
+## 5. /embeddings/<LAW_ID>/ — Embedding Vector Dumps
+
+Final EC2 job output, consumed by Lambda (2).
+```psql
+embeddings/
+└── <LAW_ID>/
+      ├── vectors.jsonl
+      ├── embeddings-manifest.json
+      └── <LAW_ID>.ready
+```
+Example vectors.jsonl
+```json
+{"chunk_id":"IVA_2025_001","vector":[0.11,0.02,...],"page":2}
+{"chunk_id":"IVA_2025_002","vector":[0.09,0.14,...],"page":3}
+
+```
+Ready flag file:
+
+- embeddings/IVA_2025/IVA_2025.ready
+
+
+**This signals Lambda (2) to begin database insertion.**
+
+## 6. /logs/<LAW_ID>/ — Worker Execution Logs
+
+All worker logs, trace IDs, and diagnostic output.
+```psql
+logs/
+└── <LAW_ID>/
+      ├── correlation.json
+      ├── worker-log-20250212.txt
+      └── errors/
+```
+Example correlation.json
+```json
+{
+  "correlation_id": "corr-IVA_2025-17381231",
+  "document_id": "IVA_2025",
+  "stages": ["raw","normalized","chunked","embedded"]
+}
+```
+
+## 7. /retry/<LAW_ID>/ — Resumable Error Recovery
+
+Used when EC2 is interrupted or encounters pipeline errors.
+```psql
+retry/
+└── <LAW_ID>/
+      ├── input-message.json
+      └── recovery-note.json
+```
+Example recovery-note.json
+```json
+{
+  "resume": true,
+  "start_from": "embedding_batch_12",
+  "reason": "spot interruption"
+}
+
 ```
