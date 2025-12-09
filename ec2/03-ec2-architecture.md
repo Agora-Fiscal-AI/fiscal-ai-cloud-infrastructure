@@ -2,7 +2,7 @@
 **Fiscal AI Cloud Infrastructure -Compute Layer Design**
 This document describes the architecture, deployment model, and internal structure of the EC2 Worker Node responsible for all heavy ingestions tasks within the Fiscal AI porcessing pipeline
 
-## 1. Rola of EC2 in the ingestion pipeline
+## 1. Role of EC2 in the ingestion pipeline
 The EC2 Worker is the core processing engine of the system. It executes tasks that requiere:
 - Persistent execution environment
 - Custom Python libraries (NLP, parsing PDF/XML processing)
