@@ -47,6 +47,7 @@ This is the ONLY required table for the MVP.
 
 CREATE TABLE laws (
     id UUID PRIMARY KEY,
+    file_hash_sha256 CHAR(26)
     title TEXT NOT NULL,
     jurisdiction TEXT NOT NULL,
     category TEXT NOT NULL,

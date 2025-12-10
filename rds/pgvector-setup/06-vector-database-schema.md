@@ -40,6 +40,7 @@ This table represents a complete legal document(law,code,regulation,guideline...
 | **Field**            | **Type**      | **Description**                                   |
 |----------------------|---------------|---------------------------------------------------|
 | `id`                 | UUID          | Unique identifier                                 |
+| `file_hash_sha256`   | CHAR(26)      | Unique document identifier                        |
 | `title`              | TEXT          | Official name of the law                          |
 | `jurisdiction`       | TEXT          | `federal` / `state` / `municipal`                 |
 | `category`           | TEXT          | e.g., `fiscal`, `administrative`, etc.            |
@@ -55,6 +56,7 @@ This table represents a complete legal document(law,code,regulation,guideline...
 
 CREATE TABLE laws (
     id UUID PRIMARY KEY,
+    file_hash_sha256 CHAR(26)
     title TEXT NOT NULL,
     jurisdiction TEXT NOT NULL,
     category TEXT NOT NULL,
