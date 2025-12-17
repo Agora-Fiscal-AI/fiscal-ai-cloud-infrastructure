@@ -67,7 +67,20 @@ CREATE TABLE law_chunks (
     chunk_index INTEGER NOT NULL,
     text TEXT NOT NULL,
     embedding VECTOR(1536),
-    metadata JSONB,
+    metadata JSON,
     json_s3_url TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );
+```
+### **chunk_metadadata**
+
+```json
+"metadata":{
+    "normnodes":[
+        "id_node",
+        "id_node"
+    ],
+    "verison": "2024-06-15",
+    "validity": true
+}
+```
