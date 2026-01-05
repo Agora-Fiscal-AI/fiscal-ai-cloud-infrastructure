@@ -50,10 +50,10 @@ fiscal-ai-docs/
 │         └── <LAW_ID>.ready            # event-trigger flag
 │
 ├── logs/
-│   └── <LAW_ID>/
-│         ├── correlation.json          # flow tracking
-│         ├── worker-log-<timestamp>.txt
-│         └── errors/                   # any pipeline warnings
+│   └── lambda1_errors/
+│         
+│         
+│         
 │
 └── retry/
     └── <LAW_ID>/
