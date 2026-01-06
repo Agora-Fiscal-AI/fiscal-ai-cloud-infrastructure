@@ -78,7 +78,7 @@ ec2-worker/
  │    ├── sqs_listener.py
  │    ├── file_downloader.py
  ├── normalization/
- │    ├── xml_to_json.py
+ │    ├── pdf_to_json.py
  │    ├── metadata_extractor.py
  ├── chunking/
  │    ├── chunker.py
