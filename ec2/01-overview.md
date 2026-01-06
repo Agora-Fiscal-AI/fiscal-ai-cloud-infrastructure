@@ -18,7 +18,7 @@ EC2 is responsible for:
   
 ### **1.2 Document Normalization**
 EC2 runs the CPU-intensive transformation steps:
-- Converting PDF / DOCX → XML → Canonical JSON
+- Converting PDF / DOCX → Canonical JSON
 - Extracting structured metadata from legal/fiscal documents
 - Validating section-level integrity
 - Standardizing document schemas and labels
