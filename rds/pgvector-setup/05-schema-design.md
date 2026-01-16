@@ -75,12 +75,12 @@ CREATE TABLE law_chunks (
 ### **chunk_metadadata**
 
 ```json
-"metadata":{
-    "normnodes":[
-        "id_node",
-        "id_node"
-    ],
-    "verison": "2024-06-15",
-    "validity": true
-}
+"metadata":
+{
+    "chunk_logical_id": "c9f4a1...",
+    "normnodes": [ "lft_articulo_15", "lft_articulo_15_frac_I" ],
+    "version": "2024-06-15",
+    "is_latest": true,
+    "supersedes": "uuid-old-one"
+},
 ```
